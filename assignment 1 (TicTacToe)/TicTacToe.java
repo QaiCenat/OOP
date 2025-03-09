@@ -1,51 +1,70 @@
 import java.util.Scanner;
 
 public class TicTacToe {
-    static char[][] board = {
-        {' ', ' ', ' '},
-        {' ', ' ', ' '},
-        {' ', ' ', ' '}
-    };
+    static char[][] board = new char[3][3];
     static char currentPlayer = 'X';
-    
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        boolean gameOn = true;
+        boolean playAgain;
 
-        while (gameOn) {
-            printBoard();
-            System.out.println("Pemain " + currentPlayer + ", masukkan baris (1-3) dan kolom (1-3): ");
-            int row = scanner.nextInt() - 1;
-            int col = scanner.nextInt() - 1;
+        do {
+            resetBoard();
+            currentPlayer = 'X';
+            boolean gameOn = true;
 
-            // Cek apakah input valid
-            if (row < 0 || row > 2 || col < 0 || col > 2 || board[row][col] != ' ') {
-                System.out.println("Posisi tidak valid! Coba lagi.");
-                continue;
-            }
-
-            board[row][col] = currentPlayer; // Set simbol pemain di papan
-            
-            if (checkWin(currentPlayer)) {
+            while (gameOn) {
                 printBoard();
-                System.out.println("Selamat! Pemain " + currentPlayer + " menang!");
-                gameOn = false;
-            } else if (isBoardFull()) {
-                printBoard();
-                System.out.println("Permainan seri!");
-                gameOn = false;
-            } else {
-                if (currentPlayer == 'X') {
-                    currentPlayer = 'O';
+                int row, col;
+
+                while (true) {
+                    System.out.println("Pemain " + currentPlayer + ", masukkan baris (1-3) dan kolom (1-3): ");
+
+                    if (!scanner.hasNextInt()) {
+                        System.out.println("Harap masukkan angka!");
+                        scanner.next();
+                        continue;
+                    }
+                    row = scanner.nextInt() - 1;
+
+                    if (!scanner.hasNextInt()) {
+                        System.out.println("Harap masukkan angka!");
+                        scanner.next();
+                        continue;
+                    }
+                    col = scanner.nextInt() - 1;
+
+                    if (isValidMove(row, col)) {
+                        break;
+                    } else {
+                        System.out.println("Posisi tidak valid! Coba lagi.");
+                    }
+                }
+
+                board[row][col] = currentPlayer;
+
+                if (checkWin(currentPlayer)) {
+                    printBoard();
+                    System.out.println("Selamat! Pemain " + currentPlayer + " menang!");
+                    gameOn = false;
+                } else if (isBoardFull()) {
+                    printBoard();
+                    System.out.println("Permainan seri!");
+                    gameOn = false;
                 } else {
-                    currentPlayer = 'X';
-                } // ini untuk mengganti giliran pemain
+                    switchPlayer();
+                }
             }
-        }
+
+            System.out.print("Ingin bermain lagi? (y/n): ");
+            playAgain = scanner.next().equalsIgnoreCase("y");
+
+        } while (playAgain);
+
+        System.out.println("Terima kasih sudah bermain!");
         scanner.close();
     }
 
-    // ini untuk mencetak papan tictactoe nya
     public static void printBoard() {
         System.out.println("  1 2 3");
         for (int i = 0; i < 3; i++) {
@@ -59,24 +78,17 @@ public class TicTacToe {
         }
     }
 
-    // validasi apakah ada pemain yang menang
     public static boolean checkWin(char player) {
-        // mengecek baris dan kolom
         for (int i = 0; i < 3; i++) {
             if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) || // Baris
                 (board[0][i] == player && board[1][i] == player && board[2][i] == player)) { // Kolom
                 return true;
             }
         }
-        // mengecek diagonal
-        if ((board[0][0] == player && board[1][1] == player && board[2][2] == player) || 
-            (board[0][2] == player && board[1][1] == player && board[2][0] == player)) {
-            return true;
-        }
-        return false;
+        return (board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
+               (board[0][2] == player && board[1][1] == player && board[2][0] == player);
     }
 
-    // validasi apakah board sudah penuh atau belum
     public static boolean isBoardFull() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -86,5 +98,21 @@ public class TicTacToe {
             }
         }
         return true;
+    }
+
+    public static void switchPlayer() {
+        currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+    }
+
+    public static void resetBoard() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                board[i][j] = ' ';
+            }
+        }
+    }
+
+    public static boolean isValidMove(int row, int col) {
+        return row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == ' ';
     }
 }
